@@ -14,6 +14,6 @@ public class CLIIO implements IO {
 
   @Override
   public void postMessage(String message) {
-    System.out.println("...");
+    System.out.println(message);
   }
 }

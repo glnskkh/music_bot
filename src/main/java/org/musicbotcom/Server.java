@@ -4,17 +4,22 @@ public class Server {
 
   private IO io;
   private boolean running;
+  private static Command commands = new Command();
 
   public Server(IO io) {
     this.io = io;
   }
 
   public void run() {
-    this.running = true;
-    Command obj = new Command();
+    running = true;
+
 
     while (running) {
-      System.out.print(obj.receiveMessage(io.getMessage()));
+      io.postMessage(commands.receiveMessage(io.getMessage()));
     }
+  }
+
+  public void stop() {
+    running = false;
   }
 }
