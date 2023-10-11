@@ -13,9 +13,12 @@ public class Server {
   public void run() {
     running = true;
 
-
     while (running) {
-      io.postMessage(commands.receiveMessage(io.getMessage()));
+      String message = io.getMessage();
+
+      String response = commands.receiveMessage(message);
+
+      io.postMessage(response);
     }
   }
 
