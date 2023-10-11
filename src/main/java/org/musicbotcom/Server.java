@@ -2,9 +2,9 @@ package org.musicbotcom;
 
 public class Server {
 
-  private IO io;
+  private static final Command commands = new Command();
+  private final IO io;
   private boolean running;
-  private static Command commands = new Command();
 
   public Server(IO io) {
     this.io = io;
