@@ -1,11 +1,6 @@
-package org.musicbotcom;
+package org.musicbotcom.token;
 
-public interface ApiKeyProvider {
-
-  String getApiKey() throws RuntimeException;
-}
-
-class EnvApiKeyProvider implements ApiKeyProvider {
+public class EnvApiKeyProvider implements ApiKeyProvider {
 
   @Override
   public String getApiKey() throws RuntimeException {

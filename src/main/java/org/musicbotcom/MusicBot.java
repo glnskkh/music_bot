@@ -1,5 +1,6 @@
 package org.musicbotcom;
 
+import org.musicbotcom.token.ApiKeyProvider;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -7,7 +8,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class MusicBot extends TelegramLongPollingBot {
 
-  private final String botUsername = "qwer213_bot";
   private final String token;
 
   public MusicBot(ApiKeyProvider keyProvider) {
@@ -37,6 +37,6 @@ public class MusicBot extends TelegramLongPollingBot {
 
   @Override
   public String getBotUsername() {
-    return botUsername;
+    return "qwer213_bot";
   }
 }
