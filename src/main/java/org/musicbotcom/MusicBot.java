@@ -1,5 +1,8 @@
 package org.musicbotcom;
 
+import java.util.HashMap;
+import org.musicbotcom.commands.ProcessCommand;
+import org.musicbotcom.storage.User;
 import org.musicbotcom.token.ApiKeyProvider;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -9,6 +12,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class MusicBot extends TelegramLongPollingBot {
 
   private final String token;
+  private final HashMap<Long, User> userHashMap = new HashMap<>();
 
   public MusicBot(ApiKeyProvider keyProvider) {
     super();
@@ -23,15 +27,30 @@ public class MusicBot extends TelegramLongPollingBot {
 
   @Override
   public void onUpdateReceived(Update update) {
-    SendMessage message = new SendMessage();
+    long chatId = update.getMessage().getChatId();
 
-    message.setChatId(update.getMessage().getChatId());
-    message.setText(update.getMessage().getText());
+    if (!userHashMap.containsKey(chatId)) {
+      userHashMap.put(chatId, new User(chatId));
+    }
+
+    User user = userHashMap.get(chatId);
+
+    boolean isCommand = update.getMessage().getText().startsWith("/");
+
+    if (isCommand) {
+      user.nextCommand = new ProcessCommand();
+    }
+
+    String response = user.nextState(update.getMessage().getText());
+
+    SendMessage message = new SendMessage();
+    message.setChatId(chatId);
+    message.setText(response);
 
     try {
       this.execute(message);
     } catch (TelegramApiException e) {
-      throw new RuntimeException("Cannot send message to chat : " + e);
+      throw new RuntimeException(e);
     }
   }
 
