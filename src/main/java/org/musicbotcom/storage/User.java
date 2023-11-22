@@ -7,8 +7,8 @@ import org.musicbotcom.commands.ProcessCommand;
 
 public class User {
 
-  private final long chatId;
   public final ArrayList<Playlist> playlists = new ArrayList<>();
+  private final long chatId;
   public Command nextCommand = new ProcessCommand();
 
   public User(long chatId) {
@@ -41,7 +41,8 @@ public class User {
   }
 
   public Optional<Playlist> getPlaylist(String playlistName) {
-    return playlists.stream().filter(playlist -> playlist.getName().equals(playlistName))
+    return playlists.stream()
+        .filter(playlist -> playlist.getName().equals(playlistName))
         .findFirst();
   }
 }

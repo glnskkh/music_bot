@@ -21,7 +21,8 @@ public class Playlist {
 
   public void deleteTrack(Track track) {
     if (!hasTrack(track)) {
-      throw new RuntimeException("Try to remove nonexistent track %s".formatted(track.toString()));
+      throw new RuntimeException(
+          "Try to remove nonexistent track %s".formatted(track.toString()));
     }
 
     tracks.remove(track);

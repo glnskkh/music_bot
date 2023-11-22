@@ -2,6 +2,8 @@ package org.musicbotcom.commands;
 
 import org.musicbotcom.commands.playlist.AddPlaylist;
 import org.musicbotcom.commands.playlist.DeletePlaylist;
+import org.musicbotcom.commands.playlist.ShowPlaylist;
+import org.musicbotcom.commands.tracks.AddTrack;
 import org.musicbotcom.storage.User;
 
 public class ProcessCommand implements Command {
@@ -35,6 +37,14 @@ public class ProcessCommand implements Command {
       case "/deletePlaylist" -> {
         this.message = "Введите название плейлиста";
         yield new DeletePlaylist();
+      }
+      case "/showPlaylist" -> {
+        this.message = "Введите название плейлиста";
+        yield new ShowPlaylist();
+      }
+      case "/addTrack" -> {
+        this.message = "Введите название плейлиста";
+        yield new AddTrack();
       }
       default -> {
         this.message = "Бот не знает такой команды, попробуйте ввести другую команду,\nДоступные команды: <...>";

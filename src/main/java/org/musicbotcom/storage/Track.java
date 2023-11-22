@@ -1,8 +1,9 @@
 package org.musicbotcom.storage;
 
 public class Track {
-  private String name;
-  private String path;
+
+  private final String name;
+  private final String path;
 
   public Track(String name, String path) {
     this.name = name;
