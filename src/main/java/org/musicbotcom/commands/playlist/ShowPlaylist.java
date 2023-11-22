@@ -11,17 +11,15 @@ public class ShowPlaylist implements Command {
   public Command react(String message, User user) {
     var playlist = user.getPlaylist(message);
 
-    Command command = new ProcessCommand();
-
-    if (playlist.isPresent()) {
-      this.message = playlist.get().show();
-    } else {
-      command = new ShowPlaylist();
-
+    if (playlist.isEmpty()) {
       this.message = "Плейлист %s не существует, выберете другое имя!".formatted(message);
+
+      return new ShowPlaylist();
     }
 
-    return command;
+    this.message = playlist.get().show();
+
+    return new ProcessCommand();
   }
 
   @Override

@@ -12,19 +12,16 @@ public class DeletePlaylist implements Command {
   public Command react(String message, User user) {
     var playlist = user.getPlaylist(message);
 
-    Command command = new ProcessCommand();
-
-    if (playlist.isPresent()) {
-      user.playlists.remove(playlist.get());
-
-      this.message = "Плейлист %s успешно удален".formatted(message);
-    } else {
-      command = new DeletePlaylist();
-
+    if (playlist.isEmpty()) {
       this.message = "Плейлист %s не существует, выберете другое имя!".formatted(message);
+
+      return new DeletePlaylist();
     }
 
-    return command;
+    user.playlists.remove(playlist.get());
+    this.message = "Плейлист %s успешно удален".formatted(message);
+
+    return new ProcessCommand();
   }
 
   @Override

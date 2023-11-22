@@ -16,44 +16,47 @@ public class AddTrack implements Command {
     this.type = Type.EnterPlaylist;
   }
 
+  private Command processEnterPlaylist(String playlistName, User user) {
+    var playlist = user.getPlaylist(playlistName);
+
+    if (playlist.isEmpty()) {
+      this.message = "Плейлист %s не существует, выберете другое имя!".formatted(
+          playlistName);
+
+      return new AddTrack();
+    }
+
+    this.message = "Введи название трека";
+    this.playlist = playlist.get();
+
+    type = Type.EnterTrack;
+
+    return this;
+  }
+
+  private Command processEnterTrack(String trackName, User user) {
+    Track example = new Track(trackName, "");
+
+    if (playlist.hasTrack(example)) {
+      this.message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
+          example.show(), playlist.getName());
+
+      return this;
+    }
+
+    playlist.addTrack(example);
+
+    this.message = "Трек успешно добавлен %s в плейлист %s".formatted(
+        example.show(), playlist.getName());
+
+    return new ProcessCommand();
+  }
+
   @Override
   public Command react(String message, User user) {
     return switch (type) {
-      case EnterPlaylist -> {
-        var playlist = user.getPlaylist(message);
-
-        if (playlist.isPresent()) {
-          this.message = "Введи название трека";
-
-          this.playlist = playlist.get();
-
-          type = Type.EnterTrack;
-
-          yield this;
-        } else {
-          this.message = "Плейлист %s не существует, выберете другое имя!".formatted(
-              message);
-
-          yield new AddTrack();
-        }
-      }
-      case EnterTrack -> {
-        Track example = new Track(message, "");
-
-        if (playlist.hasTrack(example)) {
-          this.message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
-              example.show(), playlist.getName());
-
-          yield new ProcessCommand();
-        }
-
-        playlist.addTrack(example);
-
-        this.message = "Трек успешный добавлен %s в плейлист %s".formatted(
-            example.show(), playlist.getName());
-
-        yield this;
-      }
+      case EnterPlaylist -> processEnterPlaylist(message, user);
+      case EnterTrack -> processEnterTrack(message, user);
     };
   }
 
