@@ -10,6 +10,16 @@ public class Track {
     this.path = path;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Track)) {
+      return false;
+    }
+
+    return name.equals(((Track) obj).name) &&
+        path.equals(((Track) obj).path);
+  }
+
   public String getName() {
     return name;
   }

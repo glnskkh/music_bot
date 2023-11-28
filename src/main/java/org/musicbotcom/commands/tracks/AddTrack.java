@@ -35,19 +35,19 @@ public class AddTrack implements Command {
   }
 
   private Command processEnterTrack(String trackName, User user) {
-    Track example = new Track(trackName, "");
+    Track newTrack = new Track(trackName, "");
 
-    if (playlist.hasTrack(example)) {
+    if (playlist.hasTrack(newTrack)) {
       this.message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
-          example.show(), playlist.getName());
+          newTrack.show(), playlist.getName());
 
       return this;
     }
 
-    playlist.addTrack(example);
+    playlist.addTrack(newTrack);
 
     this.message = "Трек успешно добавлен %s в плейлист %s".formatted(
-        example.show(), playlist.getName());
+        newTrack.show(), playlist.getName());
 
     return new ProcessCommand();
   }
