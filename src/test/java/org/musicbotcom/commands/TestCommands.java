@@ -1,8 +1,6 @@
 package org.musicbotcom.commands;
 
 import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.musicbotcom.MusicBot;
@@ -13,12 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-@RunWith(JUnit4.class)
 class TestCommands {
 
+  private final long DEFAULT_USER_CHAT_ID = 1;
   protected String lastAnswer;
   private MusicBot bot;
-  private final long DEFAULT_USER_CHAT_ID = 1;
 
   User getDefaultUser() {
     return bot.getUser(DEFAULT_USER_CHAT_ID);
