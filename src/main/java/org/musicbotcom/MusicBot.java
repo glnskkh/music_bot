@@ -25,16 +25,15 @@ public class MusicBot extends TelegramLongPollingBot {
     return token;
   }
 
-  @Override
-  public void onUpdateReceived(Update update) {
-    long chatId = update.getMessage().getChatId();
-
+  public User getUser(long chatId) {
     if (!userHashMap.containsKey(chatId)) {
       userHashMap.put(chatId, new User(chatId));
     }
 
-    User user = userHashMap.get(chatId);
+    return userHashMap.get(chatId);
+  }
 
+  private SendMessage processCommand(User user, Update update) {
     boolean isCommand = update.getMessage().getText().startsWith("/");
 
     if (isCommand) {
@@ -44,8 +43,18 @@ public class MusicBot extends TelegramLongPollingBot {
     String response = user.nextState(update.getMessage().getText());
 
     SendMessage message = new SendMessage();
-    message.setChatId(chatId);
+    message.setChatId(update.getMessage().getChatId());
     message.setText(response);
+
+    return message;
+  }
+
+  @Override
+  public void onUpdateReceived(Update update) {
+    long chatId = update.getMessage().getChatId();
+    User user = getUser(chatId);
+
+    SendMessage message = processCommand(user, update);
 
     try {
       this.execute(message);
