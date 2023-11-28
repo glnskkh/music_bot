@@ -1,15 +1,15 @@
 package org.musicbotcom.commands;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.runners.JUnit4;
 import org.musicbotcom.storage.Track;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public class TestAddTrack extends TestCommands {
 
   boolean wasTrackAdditionSuccessful(String name) {
@@ -18,15 +18,15 @@ public class TestAddTrack extends TestCommands {
   }
 
   @Override
-  void setUp() throws TelegramApiException {
-    super.setUp();
+  public void setUpBot() throws TelegramApiException {
+    super.setUpBot();
 
     sendDefaultUserMessage("/addPlaylist");
     sendDefaultUserMessage("123");
   }
 
   @Test
-  void testAddTrack() {
+  public void testAddTrack() {
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage("123");
     sendDefaultUserMessage("Dancing Queen");
@@ -35,7 +35,7 @@ public class TestAddTrack extends TestCommands {
   }
 
   @Test
-  void testAddTrackWrongPlaylist() {
+  public void testAddTrackWrongPlaylist() {
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage("321");
 
@@ -48,7 +48,7 @@ public class TestAddTrack extends TestCommands {
   }
 
   @Test
-  void testAddTrackExists() {
+  public void testAddTrackExists() {
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage("123");
     sendDefaultUserMessage("Money");

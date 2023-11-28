@@ -1,15 +1,13 @@
 package org.musicbotcom.commands;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.runners.JUnit4;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-@RunWith(MockitoJUnitRunner.class)
-class TestDeletePlaylist extends TestCommands {
+@RunWith(JUnit4.class)
+public class TestDeletePlaylist extends TestCommands {
 
   boolean wasSuccessfullyDeleted(String name) {
     return wasLastActionSuccessful() && getDefaultUser().getPlaylist(name)
@@ -17,30 +15,30 @@ class TestDeletePlaylist extends TestCommands {
   }
 
   @Override
-  void setUp() throws TelegramApiException {
-    super.setUp();
+  public void setUpBot() throws TelegramApiException {
+    super.setUpBot();
 
     sendDefaultUserMessage("/addPlaylist");
     sendDefaultUserMessage("123");
   }
 
   @Test
-  void testDeletePlaylist() {
+  public void testDeletePlaylist() {
     sendDefaultUserMessage("/deletePlaylist");
     sendDefaultUserMessage("123");
 
-    assertTrue(wasSuccessfullyDeleted("123"));
+    Assert.assertTrue(wasSuccessfullyDeleted("123"));
   }
 
   @Test
-  void testDeletePlaylistExists() {
+  public void testDeletePlaylistExists() {
     sendDefaultUserMessage("/deletePlaylist");
     sendDefaultUserMessage("321");
 
-    assertFalse(wasLastActionSuccessful());
+    Assert.assertFalse(wasLastActionSuccessful());
 
     sendDefaultUserMessage("123");
 
-    assertTrue(wasSuccessfullyDeleted("123"));
+    Assert.assertTrue(wasSuccessfullyDeleted("123"));
   }
 }

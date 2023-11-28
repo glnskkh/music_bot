@@ -1,14 +1,10 @@
 package org.musicbotcom.commands;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.spy;
-
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.Before;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.runners.JUnit4;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.musicbotcom.MusicBot;
 import org.musicbotcom.storage.User;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -17,12 +13,12 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 class TestCommands {
 
+  protected static String lastAnswer;
+  private static MusicBot bot;
   private final long DEFAULT_USER_CHAT_ID = 1;
-  protected String lastAnswer;
-  private MusicBot bot;
 
   User getDefaultUser() {
     return bot.getUser(DEFAULT_USER_CHAT_ID);
@@ -50,15 +46,16 @@ class TestCommands {
     return !lastAnswer.contains("друг");
   }
 
-  @BeforeEach
-  void setUp() throws TelegramApiException {
-    bot = spy(new MusicBot(() -> ""));
+  @Before
+  public void setUpBot() throws TelegramApiException {
+    bot = Mockito.spy(new MusicBot(() -> ""));
 
-    doAnswer(invocationOnMock -> {
+    Mockito.doAnswer(invocationOnMock -> {
       lastAnswer = ((SendMessage) invocationOnMock.getArguments()[0]).getText();
       return lastAnswer;
-    }).when(bot).execute(isA(SendMessage.class));
+    }).when(bot).execute(ArgumentMatchers.any(SendMessage.class));
 
-    doCallRealMethod().when(bot).onUpdateReceived(any());
+    Mockito.doCallRealMethod().when(bot)
+        .onUpdateReceived(ArgumentMatchers.any());
   }
 }

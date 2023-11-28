@@ -1,14 +1,14 @@
 package org.musicbotcom.commands;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.runners.JUnit4;
 
-@RunWith(MockitoJUnitRunner.class)
-class TestAddPlaylist extends TestCommands {
+@RunWith(JUnit4.class)
+public class TestAddPlaylist extends TestCommands {
 
   boolean wasCreatedPlaylist(String name) {
     return wasLastActionSuccessful() && getDefaultUser().getPlaylist(name)
@@ -16,7 +16,7 @@ class TestAddPlaylist extends TestCommands {
   }
 
   @Test
-  void testAddPlaylist() {
+  public void testAddPlaylist() {
     sendDefaultUserMessage("/addPlaylist");
     sendDefaultUserMessage("123");
 
@@ -24,7 +24,7 @@ class TestAddPlaylist extends TestCommands {
   }
 
   @Test
-  void testAddPlaylistExists() {
+  public void testAddPlaylistExists() {
     sendDefaultUserMessage("/addPlaylist");
     sendDefaultUserMessage("123");
     sendDefaultUserMessage("/addPlaylist");
