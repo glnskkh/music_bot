@@ -21,37 +21,26 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @RunWith(MockitoJUnitRunner.class)
-class TestCommands {
+class TestAddPlaylist extends TestCommands {
+  @Test
+  void testAddPlaylist() {
+    sendMessage(1, "/addPlaylist");
+    sendMessage(1, "123");
 
-  private MusicBot bot;
-  protected String lastAnswer;
-
-  void sendMessage(long chatId, String messageText) {
-    Chat chat = new Chat(chatId, "private");
-
-    Message message = new Message();
-    message.setChat(chat);
-    message.setText(messageText);
-
-    Update update = new Update();
-    update.setMessage(message);
-
-    bot.onUpdateReceived(update);
+    assertTrue(wasLastActionSuccessful());
   }
 
-  boolean wasLastActionSuccessful() {
-    // Пока считаем, что в неправильной строке где-то встретится слово другой
-    return !lastAnswer.contains("друг");
-  }
+  @Test
+  void testAddPlaylistExists() {
+    sendMessage(1, "/addPlaylist");
+    sendMessage(1, "123");
+    sendMessage(1, "/addPlaylist");
+    sendMessage(1, "123");
 
-  @BeforeEach
-  void setUp() throws TelegramApiException {
-    bot = spy(new MusicBot(() -> ""));
+    assertFalse(wasLastActionSuccessful());
 
-    doAnswer(invocationOnMock -> {
-      lastAnswer = ((SendMessage) invocationOnMock.getArguments()[0]).getText();
-      return lastAnswer;
-    }).when(bot).execute(isA(SendMessage.class));
-    doCallRealMethod().when(bot).onUpdateReceived(any());
+    sendMessage(1, "321");
+
+    assertTrue(wasLastActionSuccessful());
   }
 }
