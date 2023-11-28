@@ -13,7 +13,8 @@ public class DeletePlaylist implements Command {
     var playlist = user.getPlaylist(playlistName);
 
     if (playlist.isEmpty()) {
-      this.message = "Плейлист %s не существует, выберете другое имя!".formatted(playlistName);
+      this.message = "Плейлист %s не существует, выберете другое имя!".formatted(
+          playlistName);
 
       return new DeletePlaylist();
     }

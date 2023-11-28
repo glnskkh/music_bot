@@ -13,7 +13,8 @@ public class ShowPlaylist implements Command {
     var playlist = user.getPlaylist(message);
 
     if (playlist.isEmpty()) {
-      this.message = "Плейлист %s не существует, выберете другое имя!".formatted(message);
+      this.message = "Плейлист %s не существует, выберете другое имя!".formatted(
+          message);
 
       return new ShowPlaylist();
     }

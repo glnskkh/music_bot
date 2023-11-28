@@ -45,7 +45,8 @@ public class User {
   }
 
   public Optional<Playlist> getPlaylist(String playlistName) {
-    return playlists.stream().filter(playlist -> playlist.getName().equals(playlistName))
+    return playlists.stream()
+        .filter(playlist -> playlist.getName().equals(playlistName))
         .findFirst();
   }
 
@@ -58,7 +59,8 @@ public class User {
 
     if (playlist.isEmpty()) {
       throw new RuntimeException(
-          "User %s has not got playlist %s".formatted(String.valueOf(chatId), playlistName));
+          "User %s has not got playlist %s".formatted(String.valueOf(chatId),
+              playlistName));
     }
 
     playlists.remove(playlist.get());

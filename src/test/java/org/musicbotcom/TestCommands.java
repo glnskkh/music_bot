@@ -1,17 +1,12 @@
 package org.musicbotcom;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.spy;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,8 +18,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RunWith(MockitoJUnitRunner.class)
 class TestCommands {
 
-  private MusicBot bot;
   protected String lastAnswer;
+  private MusicBot bot;
 
   void sendMessage(long chatId, String messageText) {
     Chat chat = new Chat(chatId, "private");

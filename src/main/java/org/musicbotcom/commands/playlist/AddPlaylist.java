@@ -13,7 +13,8 @@ public class AddPlaylist implements Command {
     var playlist = user.getPlaylist(playlistName);
 
     if (playlist.isPresent()) {
-      this.message = "Плейлист %s уже существует, выберете другое имя!".formatted(playlistName);
+      this.message = "Плейлист %s уже существует, выберете другое имя!".formatted(
+          playlistName);
 
       return new AddPlaylist();
     }
