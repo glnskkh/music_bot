@@ -38,7 +38,7 @@ public class MusicBot extends TelegramLongPollingBot {
     boolean isCommand = update.getMessage().getText().startsWith("/");
 
     if (isCommand) {
-      user.nextCommand = new ProcessCommand();
+      user.changeNextCommand(new ProcessCommand());
     }
 
     String response = user.nextState(update.getMessage().getText());

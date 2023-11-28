@@ -5,6 +5,7 @@ import org.musicbotcom.commands.ProcessCommand;
 import org.musicbotcom.storage.User;
 
 public class ShowPlaylist implements Command {
+
   private String message;
 
   @Override
