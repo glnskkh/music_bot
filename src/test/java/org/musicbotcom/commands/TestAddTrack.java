@@ -46,4 +46,17 @@ public class TestAddTrack extends TestCommands {
 
     assertTrue(wasTrackAdditionSuccessful("Dancing Queen"));
   }
+
+  @Test
+  void testAddTrackExists() {
+    sendDefaultUserMessage("/addTrack");
+    sendDefaultUserMessage("123");
+    sendDefaultUserMessage("Money");
+
+    sendDefaultUserMessage("/addTrack");
+    sendDefaultUserMessage("123");
+    sendDefaultUserMessage("Money");
+
+    assertFalse(wasLastActionSuccessful());
+  }
 }
