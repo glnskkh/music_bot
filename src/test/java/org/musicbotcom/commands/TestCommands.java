@@ -16,8 +16,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RunWith(JUnit4.class)
 class TestCommands {
 
-  protected static String lastAnswer;
-  private static MusicBot bot;
+  protected String lastAnswer;
+  private MusicBot bot;
   private final long DEFAULT_USER_CHAT_ID = 1;
 
   User getDefaultUser() {
