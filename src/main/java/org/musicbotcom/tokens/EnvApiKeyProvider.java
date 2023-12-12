@@ -1,4 +1,4 @@
-package org.musicbotcom.token;
+package org.musicbotcom.tokens;
 
 public class EnvApiKeyProvider implements ApiKeyProvider {
 

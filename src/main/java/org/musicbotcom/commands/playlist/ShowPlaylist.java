@@ -19,7 +19,7 @@ public class ShowPlaylist implements Command {
       return new ShowPlaylist();
     }
 
-    this.message = playlist.get().show();
+    this.message = user.showPlaylist(playlist.get());
 
     return new ProcessCommand();
   }

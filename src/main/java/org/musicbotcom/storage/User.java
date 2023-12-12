@@ -1,17 +1,20 @@
 package org.musicbotcom.storage;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.musicbotcom.commands.Command;
 import org.musicbotcom.commands.ProcessCommand;
+import org.musicbotcom.storage.database.PlaylistDatabase;
+import org.musicbotcom.storage.database.TracksDatabase;
 
 public class User {
 
-  private final ArrayList<Playlist> playlists = new ArrayList<>();
   private final long chatId;
   private Command nextCommand = new ProcessCommand();
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   public User(long chatId) {
     this.chatId = chatId;
   }
@@ -34,38 +37,75 @@ public class User {
     return commandMessage;
   }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   public Optional<Playlist> getPlaylist(String playlistName) {
+    List<Playlist> playlists;
+
+    try {
+      playlists = PlaylistDatabase.getAllPlaylists(this);
+    } catch (SQLException e) {
+      System.err.printf("Cannot get all playlists for user %d", chatId);
+
+      return Optional.empty();
+    }
+
     return playlists.stream()
-        .filter(playlist -> playlist.getName().equals(playlistName))
-        .findFirst();
+        .filter(playlist -> playlist.name().equals(playlistName)).findFirst();
   }
 
   public void addPlaylist(String playlistName) {
-    playlists.add(new Playlist(playlistName));
+    try {
+      PlaylistDatabase.addPlaylist(this, playlistName);
+    } catch (SQLException e) {
+      System.err.printf("Cannot add playlist named %s for user %d%n",
+          playlistName, chatId);
+    }
   }
 
   public String showPlaylists() {
-    StringBuilder data = new StringBuilder();
-
-    for (var playlist : playlists) {
-      data.append(playlist.show());
-      data.append('\n');
+    try {
+      return PlaylistDatabase.listAllPlaylists(this);
+    } catch (SQLException e) {
+      System.err.printf("Cannot show playlists for user %d%n", chatId);
+      return "";
     }
-
-    return data.toString();
   }
 
-  public void removePlaylist(String playlistName) {
-    var playlist = getPlaylist(playlistName);
-
-    if (playlist.isEmpty()) {
-      throw new RuntimeException(
-          "User %s has not got playlist %s".formatted(String.valueOf(chatId),
-              playlistName));
+  public void removePlaylist(Playlist playlist) {
+    try {
+      PlaylistDatabase.removePlaylist(playlist);
+    } catch (SQLException e) {
+      System.err.printf("Cannot remove playlist %d for user %d%n",
+          playlist.id(), chatId);
     }
+  }
 
-    playlists.remove(playlist.get());
+  public String showPlaylist(Playlist playlist) {
+    try {
+      return TracksDatabase.getAllTracks(playlist).stream().map(Track::name)
+          .collect(Collectors.joining("\n"));
+    } catch (SQLException e) {
+      System.err.printf("Cannot show playlist %d for user %d", playlist.id(),
+          chatId);
+      return "";
+    }
+  }
+
+  public List<Track> getTracks(Playlist playlist) {
+    try {
+      return TracksDatabase.getAllTracks(playlist);
+    } catch (SQLException e) {
+      System.err.printf("Cannot get tracks from playlist %d for user %d",
+          playlist.id(), chatId);
+      return new ArrayList<>();
+    }
+  }
+
+  public void addTrack(Playlist playlist, Track track) {
+    try {
+      PlaylistDatabase.addTrack(playlist, track);
+    } catch (SQLException e) {
+      System.err.printf("Cannot add track %s in playlist %d for user %d",
+          track.name(), playlist.id(), chatId);
+    }
   }
 }

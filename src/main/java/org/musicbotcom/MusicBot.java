@@ -3,7 +3,8 @@ package org.musicbotcom;
 import java.util.HashMap;
 import org.musicbotcom.commands.ProcessCommand;
 import org.musicbotcom.storage.User;
-import org.musicbotcom.token.ApiKeyProvider;
+import org.musicbotcom.tokens.ApiKeyProvider;
+import org.musicbotcom.tokens.DatabaseProvider;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,10 +15,17 @@ public class MusicBot extends TelegramLongPollingBot {
   private final String token;
   private final HashMap<Long, User> userHashMap = new HashMap<>();
 
-  public MusicBot(ApiKeyProvider keyProvider) throws ClassNotFoundException {
+  public MusicBot(ApiKeyProvider keyProvider) {
     super();
 
     token = keyProvider.getApiKey();
+  }
+
+  @Override
+  public void onClosing() {
+    super.onClosing();
+
+    DatabaseService.stop();
   }
 
   @Override
