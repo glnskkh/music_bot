@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Set;
 
 public class DatabaseService {
   private Connection connection;
@@ -79,19 +80,29 @@ public class DatabaseService {
     try {
       // создаем изменяемые аргументы
       StringBuilder sb_args = new StringBuilder();
-      for(String key : args.keySet()) {
+      Set<String> set_args = args.keySet();
+      for(String key : set_args) {
         sb_args.append(key);
         sb_args.append(" = '");
         sb_args.append(args.get(key));
         sb_args.append("'");
+        set_args.remove(key);
+        if(!(set_args.isEmpty())) {
+          sb_args.append(", ");
+        }
       }
 
       StringBuilder sb_where = new StringBuilder();
-      for(String key : where.keySet()) {
+      Set<String> set_where = args.keySet();
+      for(String key : set_where) {
         sb_where.append(key);
         sb_where.append(" = '");
         sb_where.append(where.get(key));
         sb_where.append("'");
+        set_where.remove(key);
+        if(!(set_where.isEmpty())) {
+          sb_where.append(", ");
+        }
       }
 
       // создаем запрос
