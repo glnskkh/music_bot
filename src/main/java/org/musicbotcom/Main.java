@@ -1,5 +1,6 @@
 package org.musicbotcom;
 
+import java.util.ArrayList;
 import org.musicbotcom.token.EnvApiKeyProvider;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -14,6 +15,8 @@ public class Main {
       api.registerBot(new MusicBot(new EnvApiKeyProvider()));
     } catch (TelegramApiException e) {
       throw new RuntimeException("Cannot register telegram bot : " + e);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 }

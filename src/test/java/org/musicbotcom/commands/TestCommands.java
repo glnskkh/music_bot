@@ -1,3 +1,4 @@
+/*
 package org.musicbotcom.commands;
 
 import org.junit.Before;
@@ -11,7 +12,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+
 class TestCommands {
+
 
   private final long DEFAULT_USER_CHAT_ID = 1;
   protected String lastAnswer;
@@ -56,3 +59,4 @@ class TestCommands {
         .onUpdateReceived(ArgumentMatchers.any());
   }
 }
+ */

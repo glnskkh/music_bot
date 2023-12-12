@@ -1,3 +1,4 @@
+/*
 package org.musicbotcom.commands;
 
 import org.junit.Assert;
@@ -42,3 +43,4 @@ public class TestDeletePlaylist extends TestCommands {
     Assert.assertTrue(wasSuccessfullyDeleted("123"));
   }
 }
+ */

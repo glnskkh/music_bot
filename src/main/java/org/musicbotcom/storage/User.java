@@ -11,23 +11,13 @@ public class User {
   private final long chatId;
   private Command nextCommand = new ProcessCommand();
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   public User(long chatId) {
     this.chatId = chatId;
   }
 
   public long getChatId() {
     return chatId;
-  }
-
-  public String showPlaylists() {
-    StringBuilder data = new StringBuilder();
-
-    for (var playlist : playlists) {
-      data.append(playlist.show());
-      data.append('\n');
-    }
-
-    return data.toString();
   }
 
   public void changeNextCommand(Command nextCommand) {
@@ -44,6 +34,8 @@ public class User {
     return commandMessage;
   }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   public Optional<Playlist> getPlaylist(String playlistName) {
     return playlists.stream()
         .filter(playlist -> playlist.getName().equals(playlistName))
@@ -52,6 +44,17 @@ public class User {
 
   public void addPlaylist(String playlistName) {
     playlists.add(new Playlist(playlistName));
+  }
+
+  public String showPlaylists() {
+    StringBuilder data = new StringBuilder();
+
+    for (var playlist : playlists) {
+      data.append(playlist.show());
+      data.append('\n');
+    }
+
+    return data.toString();
   }
 
   public void removePlaylist(String playlistName) {
