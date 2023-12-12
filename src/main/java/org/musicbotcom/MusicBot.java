@@ -1,12 +1,7 @@
 package org.musicbotcom;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend.Prop;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Properties;
 import org.musicbotcom.commands.ProcessCommand;
-import org.musicbotcom.storage.DatabaseService;
 import org.musicbotcom.storage.User;
 import org.musicbotcom.token.ApiKeyProvider;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;

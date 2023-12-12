@@ -36,6 +36,7 @@ public class DatabaseService {
           db_name,
           String.join(", ", args),
           String.join(", ", values));
+      System.out.println(query);
       Statement statement = connection.createStatement();
       statement.executeUpdate(query);
       statement.close();
@@ -43,39 +44,42 @@ public class DatabaseService {
       System.err.println("SQLException in Insert");
     }
   }
+
+  // формирование строки для запроса
   public String Get_db(String db_name) {
-    try {
-      // Создание оператора доступа к базе данных
-      Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-          ResultSet.CONCUR_UPDATABLE);
+    return "SELECT * FROM %s".formatted(db_name);
+  }
+  public String Get_group(String db_name,String sum, String group_by) {
+    return "SELECT SUM(%s) FROM %s GROUP BY %s".formatted(sum, db_name, group_by);
+  }
+  public String Get_column(String db_name, String column) {
+    return "SELECT %s FROM %s".formatted(column, db_name);
+  }
+  // чтение по строке запроса
+  public String Read_db(String query) throws SQLException {
+    Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+        ResultSet.CONCUR_UPDATABLE);
+    ResultSet table = statement.executeQuery(query);
 
-      // Выполнение запроса к базе данных, получение набора данных
-      ResultSet table = statement.executeQuery("SELECT * FROM %s".formatted(db_name));
+    StringBuilder result = new StringBuilder();
 
-      StringBuilder result = new StringBuilder();
+    table.first(); // имена полей
+    for (int j = 1; j <= table.getMetaData().getColumnCount(); j++) {
+      result.append("%s\t\t".formatted(table.getMetaData().getColumnName(j)));
+    }
+    result.append("\n");
 
-      table.first(); // имена полей
+    table.beforeFirst(); // сами поля
+    while(table.next()) {
       for (int j = 1; j <= table.getMetaData().getColumnCount(); j++) {
-        result.append("%s\t\t".formatted(table.getMetaData().getColumnName(j)));
+        result.append("%s\t\t".formatted(table.getString(j)));
       }
       result.append("\n");
-
-      table.beforeFirst(); // сами поля
-      while (table.next()) {
-        for (int j = 1; j <= table.getMetaData().getColumnCount(); j++) {
-          result.append("%s\t\t".formatted(table.getString(j)));
-        }
-        result.append("\n");
-      }
-
-      statement.close();
-      return result.toString();
-
-    } catch (SQLException e) {
-      return "SQLException in reading db";
     }
-
+    statement.close();
+    return result.toString();
   }
+
   public void Update(String db_name, HashMap<String, String> args, HashMap<String, String> where) {
     try {
       // создаем изменяемые аргументы
@@ -118,7 +122,6 @@ public class DatabaseService {
       System.err.println("SQLException in Update");
     }
   }
-
   public void Delete_row(String db_name, HashMap<String, String> where) {
     try {
       StringBuilder sb_where = new StringBuilder();
