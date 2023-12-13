@@ -1,31 +1,45 @@
 package org.musicbotcom.commands.playlist;
 
-import org.musicbotcom.commands.Command;
-import org.musicbotcom.commands.ProcessCommand;
+import org.musicbotcom.commands.CommandResult;
+import org.musicbotcom.commands.SingleStateCommand;
 import org.musicbotcom.storage.User;
 
-public class ShowPlaylist implements Command {
+public class ShowPlaylist implements SingleStateCommand {
 
-  private String message;
+  private State state = State.Invocation;
 
-  @Override
-  public Command react(String message, User user) {
-    var playlist = user.getPlaylist(message);
+  private CommandResult reactInvocation() {
+    var message = "Введите название плейлиста";
+
+    state = State.ReadPlaylistName;
+
+    return CommandResult.notChangeCommand(this, message);
+  }
+
+  private CommandResult reactReadPlaylistName(String playlistName, User user) {
+    var playlist = user.getPlaylist(playlistName);
 
     if (playlist.isEmpty()) {
-      this.message = "Плейлист %s не существует, выберете другое имя!".formatted(
-          message);
+      var message = "Плейлист %s не существует, выберете другое имя!".formatted(
+          playlistName);
 
-      return new ShowPlaylist();
+      return CommandResult.notChangeCommand(this, message);
     }
 
-    this.message = user.showPlaylist(playlist.get());
+    var message = user.showPlaylist(playlist.get());
 
-    return new ProcessCommand();
+    return CommandResult.returnToEmptyState(message);
   }
 
   @Override
-  public String getMessage() {
-    return message;
+  public CommandResult react(String message, User user) {
+    return switch (state) {
+      case Invocation -> reactInvocation();
+      case ReadPlaylistName -> reactReadPlaylistName(message, user);
+    };
+  }
+
+  private enum State {
+    Invocation, ReadPlaylistName,
   }
 }

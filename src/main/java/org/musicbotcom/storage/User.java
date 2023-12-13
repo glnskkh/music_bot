@@ -5,14 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.musicbotcom.DatabaseService;
 import org.musicbotcom.commands.Command;
+import org.musicbotcom.commands.CommandResult;
 import org.musicbotcom.commands.ProcessCommand;
-import org.musicbotcom.storage.database.PlaylistDatabase;
-import org.musicbotcom.storage.database.TracksDatabase;
 
 public class User {
-
   private final long chatId;
   private Command nextCommand = new ProcessCommand();
 
@@ -29,18 +26,16 @@ public class User {
   }
 
   public String nextState(String message) {
-    Command command = nextCommand.react(message, this);
+    CommandResult commandResult = nextCommand.react(message, this);
 
-    String commandMessage = nextCommand.getMessage();
+    nextCommand = commandResult.nextCommand();
 
-    nextCommand = command;
-
-    return commandMessage;
+    return commandResult.message();
   }
 
   public List<Playlist> getAllPlaylists(String playlistName) {
     try {
-      return PlaylistDatabase.getAllPlaylists(this);
+      return Playlist.getAllPlaylists(this);
     } catch (SQLException e) {
       System.err.printf("Cannot get all playlists for user %d", chatId);
 
@@ -50,7 +45,7 @@ public class User {
 
   public void addPlaylist(String playlistName) {
     try {
-      PlaylistDatabase.addPlaylist(this, playlistName);
+      Playlist.addPlaylist(this, playlistName);
     } catch (SQLException e) {
       System.err.printf("Cannot add playlist named %s for user %d%n",
           playlistName, chatId);
@@ -59,16 +54,17 @@ public class User {
 
   public Optional<Playlist> getPlaylist(String playlistName) {
     try {
-      return PlaylistDatabase.getPlaylist(this, playlistName);
+      return Playlist.getPlaylist(this, playlistName);
     } catch (SQLException e) {
-      System.err.printf("Cannot get playlist %s for user %d", playlistName, chatId);
+      System.err.printf("Cannot get playlist %s for user %d", playlistName,
+          chatId);
       return Optional.empty();
     }
   }
 
   public String showPlaylists() {
     try {
-      return PlaylistDatabase.listAllPlaylists(this);
+      return Playlist.listAllPlaylists(this);
     } catch (SQLException e) {
       System.err.printf("Cannot show playlists for user %d%n", chatId);
       return "";
@@ -77,7 +73,7 @@ public class User {
 
   public void removePlaylist(Playlist playlist) {
     try {
-      PlaylistDatabase.removePlaylist(playlist);
+      Playlist.removePlaylist(playlist);
     } catch (SQLException e) {
       System.err.printf("Cannot remove playlist %d for user %d%n",
           playlist.id(), chatId);
@@ -86,7 +82,7 @@ public class User {
 
   public String showPlaylist(Playlist playlist) {
     try {
-      return TracksDatabase.getAllTracks(playlist).stream().map(Track::name)
+      return Track.getAllTracks(playlist).stream().map(Track::name)
           .collect(Collectors.joining("\n"));
     } catch (SQLException e) {
       System.err.printf("Cannot show playlist %d for user %d", playlist.id(),
@@ -97,7 +93,7 @@ public class User {
 
   public List<Track> getTracks(Playlist playlist) {
     try {
-      return TracksDatabase.getAllTracks(playlist);
+      return Track.getAllTracks(playlist);
     } catch (SQLException e) {
       System.err.printf("Cannot get tracks from playlist %d for user %d",
           playlist.id(), chatId);
@@ -107,7 +103,7 @@ public class User {
 
   public void addTrack(Playlist playlist, Track track) {
     try {
-      PlaylistDatabase.addTrack(playlist, track);
+      Playlist.addTrack(playlist, track);
     } catch (SQLException e) {
       System.err.printf("Cannot add track %s in playlist %d for user %d",
           track.name(), playlist.id(), chatId);

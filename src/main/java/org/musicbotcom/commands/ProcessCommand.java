@@ -6,55 +6,53 @@ import org.musicbotcom.commands.playlist.ShowPlaylist;
 import org.musicbotcom.commands.tracks.AddTrack;
 import org.musicbotcom.storage.User;
 
-public class ProcessCommand implements Command {
-
-  private String message;
+public class ProcessCommand implements SingleStateCommand {
 
   @Override
-  public Command react(String message, User user) {
+  public CommandResult react(String userInput, User user) {
+    return switch (userInput) {
+      case "/addPlaylist" ->
+          CommandResult.invocation(new AddPlaylist(), userInput, user);
+      case "/deletePlaylist" ->
+          CommandResult.invocation(new DeletePlaylist(), userInput, user);
+      case "/showPlaylist" ->
+          CommandResult.invocation(new ShowPlaylist(), userInput, user);
+      case "/addTrack" ->
+          CommandResult.invocation(new AddTrack(), userInput, user);
 
-    return switch (message) {
       case "/start" -> {
-        this.message = "Привет!\nЭто бот позволяет переносить аудиозаписи из вконтакте прямиком в диалог с ботомПомимо этого бот также умеет находить треки близкие по жанрам, а также по звучанию\nДля привязки своего профиля ВК, отправьте боту <сслыка на бота в вк> код:<копируемое сообщение>";
-        yield new ProcessCommand();
+        var message = """
+                Привет!
+                Этоn бот позволяет переносить аудиозаписи из вконтакте прямиком в диалог с ботом
+                Помимо этого бот также умеет находить треки близкие по жанрам, а также по звучанию
+                Для привязки своего профиля ВК, отправьте боту <сслыка на бота в вк> код: <копируемое сообщение>
+            """;
+
+        yield CommandResult.returnToEmptyState(message);
       }
       case "/help" -> {
-        this.message = "Это бот позволяет переносить аудиозаписи из вконтакте прямиком в диалог с ботом.\n Помимо этого бот также умеет находить треки близкие по жанрам, а также по звучанию\nПеречень команд:\n<...>\n<...>\n<...>";
-        yield new ProcessCommand();
+        var message = """
+            Этот бот позволяет переносить аудиозаписи из вконтакте прямиком в диалог с ботом.
+            Помимо этого бот также умеет находить треки близкие по жанрам, а также по звучанию
+            Перечень команд:
+            <...>
+            <...>
+            <...>""";
+        yield CommandResult.returnToEmptyState(message);
       }
       case "/authorization" -> {
-        this.message = "Бот отправит вам идентификатор для авторизации в боте ВКонтакте и привязки аккаунтов";
-        yield new ProcessCommand();
+        var message = "Бот отправит вам идентификатор для авторизации в боте ВКонтакте и привязки аккаунтов";
+        yield CommandResult.returnToEmptyState(message);
       }
       case "/me" -> {
-        this.message = String.valueOf(user.getChatId());
-        yield new ProcessCommand();
+        var message = String.valueOf(user.getChatId());
+        yield CommandResult.returnToEmptyState(message);
       }
-      case "/addPlaylist" -> {
-        this.message = "Введите название плейлиста";
-        yield new AddPlaylist();
-      }
-      case "/deletePlaylist" -> {
-        this.message = "Введите название плейлиста";
-        yield new DeletePlaylist();
-      }
-      case "/showPlaylist" -> {
-        this.message = "Введите название плейлиста";
-        yield new ShowPlaylist();
-      }
-      case "/addTrack" -> {
-        this.message = "Введите название плейлиста";
-        yield new AddTrack();
-      }
+
       default -> {
-        this.message = "Бот не знает такой команды, попробуйте ввести другую команду,\nДоступные команды: <...>";
-        yield new ProcessCommand();
+        var message = "Бот не знает такой команды, попробуйте ввести другую команду,\nДоступные команды: <...>";
+        yield new CommandResult(new ProcessCommand(), message);
       }
     };
-  }
-
-  @Override
-  public String getMessage() {
-    return message;
   }
 }

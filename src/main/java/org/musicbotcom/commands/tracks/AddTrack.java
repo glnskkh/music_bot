@@ -2,75 +2,73 @@ package org.musicbotcom.commands.tracks;
 
 import java.util.List;
 import org.musicbotcom.commands.Command;
-import org.musicbotcom.commands.ProcessCommand;
+import org.musicbotcom.commands.CommandResult;
 import org.musicbotcom.storage.Playlist;
 import org.musicbotcom.storage.Track;
 import org.musicbotcom.storage.User;
-import org.musicbotcom.storage.database.PlaylistDatabase;
-import org.musicbotcom.storage.database.TracksDatabase;
 
 public class AddTrack implements Command {
 
-  private Type type;
-  private String message;
+  private States state = States.Invocation;
   private Playlist playlist;
 
-  public AddTrack() {
-    this.type = Type.EnterPlaylist;
+  private CommandResult reactInvocation() {
+    var message = "Введите название плейлиста";
+
+    state = States.ReadPlaylistName;
+
+    return CommandResult.notChangeCommand(this, message);
   }
 
-  private Command processEnterPlaylist(String playlistName, User user) {
+  private CommandResult reactReadPlaylistName(String playlistName, User user) {
     var playlist = user.getPlaylist(playlistName);
 
     if (playlist.isEmpty()) {
-      this.message = "Плейлист %s не существует, выберете другое имя!".formatted(
+      var message = "Плейлист %s не существует, выберете другое имя!".formatted(
           playlistName);
 
-      return new AddTrack();
+      return CommandResult.notChangeCommand(this, message);
     }
 
-    this.message = "Введи название трека";
     this.playlist = playlist.get();
 
-    type = Type.EnterTrack;
+    var message = "Введи название трека";
 
-    return this;
+    state = States.ReadTrackName;
+
+    return CommandResult.notChangeCommand(this, message);
   }
 
-  private Command processEnterTrack(String trackName, User user) {
+  private CommandResult reactReadTrackName(String trackName, User user) {
     Track newTrack = new Track(0, trackName, "");
 
     List<Track> tracks = user.getTracks(playlist);
 
     if (Playlist.contains(tracks, newTrack)) {
-      this.message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
+      var message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
           newTrack.name(), playlist.name());
 
-      return this;
+      return CommandResult.notChangeCommand(this, message);
     }
 
     user.addTrack(playlist, newTrack);
 
-    this.message = "Трек успешно добавлен %s в плейлист %s".formatted(
+    var message = "Трек успешно добавлен %s в плейлист %s".formatted(
         newTrack.name(), playlist.name());
 
-    return new ProcessCommand();
+    return CommandResult.returnToEmptyState(message);
   }
 
   @Override
-  public Command react(String message, User user) {
-    return switch (type) {
-      case EnterPlaylist -> processEnterPlaylist(message, user);
-      case EnterTrack -> processEnterTrack(message, user);
+  public CommandResult react(String message, User user) {
+    return switch (state) {
+      case Invocation -> reactInvocation();
+      case States.ReadPlaylistName -> reactReadPlaylistName(message, user);
+      case States.ReadTrackName -> reactReadTrackName(message, user);
     };
   }
 
-  @Override
-  public String getMessage() {
-    return this.message;
-  }
-
-  public enum Type {
-    EnterPlaylist, EnterTrack
+  private enum States {
+    Invocation, ReadPlaylistName, ReadTrackName
   }
 }
