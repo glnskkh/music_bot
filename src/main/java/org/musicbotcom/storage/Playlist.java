@@ -1,6 +1,8 @@
 package org.musicbotcom.storage;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.musicbotcom.DatabaseService;
 
 public record Playlist(long id, String name) {
@@ -129,6 +131,38 @@ public record Playlist(long id, String name) {
       throw new RuntimeException(
           "Cannot add track %d to playlist %d".formatted(track.id(),
               playlist.id()));
+    }
+  }
+
+  public static List<Playlist> getPlaylists(long chatId) {
+    var queryAllPlaylists = """
+        select
+          playlists.playlist_id,
+          playlists.name
+        from
+          playlists
+        where
+          playlists.chat_id = ?;
+        """;
+
+    try (var statement = DatabaseService.prepareStatement(queryAllPlaylists)) {
+      statement.setLong(1, chatId);
+
+      var results = statement.executeQuery();
+
+      List<Playlist> result = new ArrayList<>();
+
+      for (results.beforeFirst(); results.next(); ) {
+        long id = results.getLong("playlist_id");
+        String name = results.getString("name");
+
+        result.add(new Playlist(id, name));
+      }
+
+      return result;
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot get info on playlists for user %d".formatted(chatId));
     }
   }
 }

@@ -61,4 +61,8 @@ public class User {
   public void addTrack(String playlistName, String trackName) {
     Playlist.addTrack(getChatId(), playlistName, trackName);
   }
+
+  public List<Playlist> getPlaylists() {
+    return Playlist.getPlaylists(getChatId());
+  }
 }

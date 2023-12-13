@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import org.musicbotcom.tokens.DatabaseProvider;
 
@@ -27,8 +26,10 @@ public class DatabaseService {
     }
   }
 
-  public static PreparedStatement prepareStatement(String query) throws SQLException {
-    return connection.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+  public static PreparedStatement prepareStatement(String query)
+      throws SQLException {
+    return connection.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE,
+        ResultSet.CONCUR_UPDATABLE);
   }
 
   public static void stop() {

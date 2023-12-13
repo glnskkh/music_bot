@@ -34,7 +34,7 @@ public record Track(long id, String name, String path) {
   }
 
   public static List<Track> fromPlaylist(long chatId, String playlistName) {
-    final String queryTracksByPlaylist = """
+    var queryTracksByPlaylist = """
         select
           tracks.track_id,
           tracks.name,
