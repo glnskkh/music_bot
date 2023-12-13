@@ -42,7 +42,7 @@ public class AddTrack implements Command {
 
     List<Track> tracks = user.getTracks(playlist);
 
-    if (tracks.contains(newTrack)) {
+    if (Playlist.contains(tracks, newTrack)) {
       this.message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
           newTrack.name(), playlist.name());
 

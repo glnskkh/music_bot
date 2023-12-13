@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.musicbotcom.DatabaseService;
 import org.musicbotcom.commands.Command;
 import org.musicbotcom.commands.ProcessCommand;
 import org.musicbotcom.storage.database.PlaylistDatabase;
@@ -37,19 +38,14 @@ public class User {
     return commandMessage;
   }
 
-  public Optional<Playlist> getPlaylist(String playlistName) {
-    List<Playlist> playlists;
-
+  public List<Playlist> getAllPlaylists(String playlistName) {
     try {
-      playlists = PlaylistDatabase.getAllPlaylists(this);
+      return PlaylistDatabase.getAllPlaylists(this);
     } catch (SQLException e) {
       System.err.printf("Cannot get all playlists for user %d", chatId);
 
-      return Optional.empty();
+      return new ArrayList<>();
     }
-
-    return playlists.stream()
-        .filter(playlist -> playlist.name().equals(playlistName)).findFirst();
   }
 
   public void addPlaylist(String playlistName) {
@@ -58,6 +54,15 @@ public class User {
     } catch (SQLException e) {
       System.err.printf("Cannot add playlist named %s for user %d%n",
           playlistName, chatId);
+    }
+  }
+
+  public Optional<Playlist> getPlaylist(String playlistName) {
+    try {
+      return PlaylistDatabase.getPlaylist(this, playlistName);
+    } catch (SQLException e) {
+      System.err.printf("Cannot get playlist %s for user %d", playlistName, chatId);
+      return Optional.empty();
     }
   }
 

@@ -12,28 +12,13 @@ import org.musicbotcom.storage.User;
 
 public class TracksDatabase {
 
-  private static List<Track> collectTracks(ResultSet results)
-      throws SQLException {
-    List<Track> playlists = new ArrayList<>();
-
-    for (results.beforeFirst(); results.next(); ) {
-      long id = results.getLong(1);
-      String name = results.getString(2);
-      String path = results.getString(3);
-
-      playlists.add(new Track(id, name, path));
-    }
-
-    return playlists;
-  }
-
   public static List<Track> getAllTracks(Playlist playlist)
       throws SQLException {
     PreparedStatement statement = DatabaseService.prepareStatement("""
         SELECT
-          track_id,
-          name,
-          path
+          tracks.track_id,
+          tracks.name,
+          tracks.path
         FROM
           tracks
         RIGHT JOIN inclusion ON inclusion.track_id = tracks.track_id
@@ -43,7 +28,15 @@ public class TracksDatabase {
     statement.setLong(1, playlist.id());
 
     ResultSet results = statement.executeQuery();
-    List<Track> tracks = collectTracks(results);
+    List<Track> tracks = new ArrayList<>();
+
+    for (results.beforeFirst(); results.next(); ) {
+      long id = results.getLong(1);
+      String name = results.getString(2);
+      String path = results.getString(3);
+
+      tracks.add(new Track(id, name, path));
+    }
 
     statement.close();
 

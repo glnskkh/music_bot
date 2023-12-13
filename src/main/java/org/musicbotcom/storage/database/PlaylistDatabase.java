@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.musicbotcom.DatabaseService;
 import org.musicbotcom.storage.Playlist;
 import org.musicbotcom.storage.Track;
@@ -97,7 +98,7 @@ public class PlaylistDatabase {
     StringBuilder stringBuilder = new StringBuilder();
 
     for (results.beforeFirst(); results.next(); ) {
-      String playlistName = results.getString(1);
+      String playlistName = results.getString("name");
 
       stringBuilder.append(playlistName);
       stringBuilder.append('\n');
@@ -109,15 +110,53 @@ public class PlaylistDatabase {
   public static void addTrack(Playlist playlist, Track track) throws SQLException {
     PreparedStatement statement = DatabaseService.prepareStatement("""
         INSERT INTO
+          tracks (name, path)
+        VALUES
+          (?, ?);
+        
+        INSERT INTO
           inclusion (playlist_id, track_id)
         VALUES
           (?, ?);
         """);
-    statement.setLong(1, playlist.id());
-    statement.setLong(2, track.id());
+    statement.setString(1, track.path());
+    statement.setString(2, track.path());
+    statement.setLong(3, playlist.id());
+    statement.setLong(4, track.id());
 
     statement.executeQuery();
 
     statement.close();
+  }
+
+  public static Optional<Playlist> getPlaylist(User user, String playlistName) throws SQLException {
+    PreparedStatement statement = DatabaseService.prepareStatement("""
+        SELECT
+          playlists.playlist_id,
+          playlists.name
+        FROM
+          playlists
+        WHERE
+        	playlists.name = ? AND
+          playlists.chat_id = ?;
+        """);
+    statement.setString(1, playlistName);
+    statement.setLong(2, user.getChatId());
+
+    ResultSet results = statement.executeQuery();
+    results.beforeFirst();
+
+    if (!results.next()) {
+      statement.close();
+
+      return Optional.empty();
+    }
+
+    long playlistId = results.getLong("playlist_id");
+    String name = results.getString("name");
+
+    statement.close();
+
+    return Optional.of(new Playlist(playlistId, name));
   }
 }

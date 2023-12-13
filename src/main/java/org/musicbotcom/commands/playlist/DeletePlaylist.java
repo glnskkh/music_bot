@@ -19,7 +19,7 @@ public class DeletePlaylist implements Command {
       return new DeletePlaylist();
     }
 
-    user.removePlaylist(playlistName);
+    user.removePlaylist(playlist.get());
     this.message = "Плейлист %s успешно удален".formatted(playlistName);
 
     return new ProcessCommand();
