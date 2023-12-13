@@ -17,16 +17,18 @@ public class ShowPlaylist implements SingleStateCommand {
   }
 
   private CommandResult reactReadPlaylistName(String playlistName, User user) {
-    var playlist = user.getPlaylist(playlistName);
-
-    if (playlist.isEmpty()) {
+    if (!user.hasPlaylist(playlistName)) {
       var message = "Плейлист %s не существует, выберете другое имя!".formatted(
           playlistName);
 
       return CommandResult.notChangeCommand(this, message);
     }
 
-    var message = user.showPlaylist(playlist.get());
+    var message = user.showPlaylist(playlistName);
+
+    if (message.isEmpty()) {
+      message = "< Нет треков >";
+    }
 
     return CommandResult.returnToEmptyState(message);
   }

@@ -13,15 +13,15 @@ public record Playlist(long id, String name) {
         	playlists
         where
         	playlists.chat_id = ? and
-        	playlists.name like ?;
+        	playlists.name = ?;
         """;
 
     try (var statement = DatabaseService.prepareStatement(queryPlaylistName)) {
       statement.setLong(1, chatId);
-      statement.setString(2, "%" + playlistName + "%");
+      statement.setString(2, playlistName);
 
       var results = statement.executeQuery();
-      results.beforeFirst();
+      results.first();
 
       int count = results.getInt("count");
 
@@ -47,10 +47,10 @@ public record Playlist(long id, String name) {
 
     try (var statement = DatabaseService.prepareStatement(queryPlaylistInfo)) {
       statement.setLong(1, chatId);
-      statement.setString(2, "%" + playlistName + "%");
+      statement.setString(2, playlistName);
 
       var results = statement.executeQuery();
-      results.beforeFirst();
+      results.first();
 
       long id = results.getLong("playlist_id");
       String name = results.getString("name");
@@ -75,7 +75,7 @@ public record Playlist(long id, String name) {
       statement.setLong(1, chatId);
       statement.setString(2, playlistName);
 
-      statement.executeQuery();
+      statement.execute();
     } catch (SQLException e) {
       throw new RuntimeException(
           "Cannot add playlist %s".formatted(playlistName));
@@ -100,13 +100,35 @@ public record Playlist(long id, String name) {
       statement.setLong(1, playlistId);
       statement.setLong(2, playlistId);
 
-      statement.executeQuery();
+      statement.execute();
     } catch (SQLException e) {
       throw new RuntimeException(
-          "Cannot add playlist %d".formatted(playlistId));
+          "Cannot delete playlist %d".formatted(playlistId));
     }
-
   }
 
-  public static void addTrack(long chatId, String playlistName, String trackName) {}
+  public static void addTrack(long chatId, String playlistName,
+      String trackName) {
+    Track track = Track.fromName(trackName);
+    Playlist playlist = Playlist.getPlaylist(chatId, playlistName);
+
+    var queryDeletePlaylist = """
+        insert into
+        	inclusion(playlist_id, track_id)
+        values
+        	(?, ?);
+        """;
+
+    try (var statement = DatabaseService.prepareStatement(
+        queryDeletePlaylist)) {
+      statement.setLong(1, playlist.id());
+      statement.setLong(2, track.id());
+
+      statement.execute();
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot add track %d to playlist %d".formatted(track.id(),
+              playlist.id()));
+    }
+  }
 }

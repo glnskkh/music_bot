@@ -21,7 +21,7 @@ public record Track(long id, String name, String path) {
       statement.setString(1, "%" + trackName + "%");
 
       var results = statement.executeQuery();
-      results.beforeFirst();
+      results.first();
 
       int count = results.getInt("count");
 
@@ -44,14 +44,14 @@ public record Track(long id, String name, String path) {
           right join inclusion on inclusion.track_id = tracks.track_id
           right join playlists on playlists.playlist_id = inclusion.playlist_id
         where
-          playlists.chat_id = ? and
-          playlists.name = ?;
+          playlists.chat_id = ?
+          and playlists.name = ?;
         """;
 
     try (var statement = DatabaseService.prepareStatement(
         queryTracksByPlaylist)) {
       statement.setLong(1, chatId);
-      statement.setString(2, "%" + playlistName + "%");
+      statement.setString(2, playlistName);
 
       var results = statement.executeQuery();
 
@@ -62,6 +62,10 @@ public record Track(long id, String name, String path) {
         String name = results.getString("name");
         String path = results.getString("path");
 
+        if (path == null) {
+          continue;
+        }
+
         result.add(new Track(id, name, path));
       }
 
@@ -70,6 +74,34 @@ public record Track(long id, String name, String path) {
     } catch (SQLException e) {
       throw new RuntimeException(
           "Cannot check %s availability".formatted(playlistName));
+    }
+  }
+
+  public static Track fromName(String trackName) {
+    final String queryTrackName = """
+        select
+        	tracks.track_id,
+        	tracks.name,
+        	tracks.path
+        from
+        	tracks
+        where
+        	tracks.name like ?;
+        """;
+
+    try (var statement = DatabaseService.prepareStatement(queryTrackName)) {
+      statement.setString(1, "%" + trackName + "%");
+
+      var results = statement.executeQuery();
+      results.first();
+
+      long id = results.getLong("track_id");
+      String name = results.getString("name");
+      String path = results.getString("path");
+
+      return new Track(id, name, path);
+    } catch (SQLException e) {
+      throw new RuntimeException("Cannot get %s track".formatted(trackName));
     }
   }
 }

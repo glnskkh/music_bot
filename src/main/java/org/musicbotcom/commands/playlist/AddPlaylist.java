@@ -18,15 +18,11 @@ public class AddPlaylist implements SingleStateCommand {
 
   private CommandResult reactReadPlaylistName(String playlistName, User user) {
     if (user.hasPlaylist(playlistName)) {
-      if (playlist.isPresent()) {
-        var message = "Плейлист %s уже существует, выберете другое имя!".formatted(
-            playlistName);
+      var message = "Плейлист %s уже существует, выберете другое имя!".formatted(
+          playlistName);
 
-        return CommandResult.notChangeCommand(this, message);
-      }
+      return CommandResult.notChangeCommand(this, message);
     }
-
-    var playlist = user.getPlaylist(playlistName);
 
     user.addPlaylist(playlistName);
 

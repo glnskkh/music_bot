@@ -1,6 +1,7 @@
 package org.musicbotcom.commands.tracks;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.musicbotcom.commands.Command;
 import org.musicbotcom.commands.CommandResult;
 import org.musicbotcom.storage.Playlist;
@@ -21,16 +22,14 @@ public class AddTrack implements Command {
   }
 
   private CommandResult reactReadPlaylistName(String playlistName, User user) {
-    var playlist = user.getPlaylist(playlistName);
-
-    if (playlist.isEmpty()) {
+    if (!user.hasPlaylist(playlistName)) {
       var message = "Плейлист %s не существует, выберете другое имя!".formatted(
           playlistName);
 
       return CommandResult.notChangeCommand(this, message);
     }
 
-    this.playlist = playlist.get();
+    this.playlist = user.getPlaylist(playlistName);
 
     var message = "Введи название трека";
 
@@ -40,21 +39,27 @@ public class AddTrack implements Command {
   }
 
   private CommandResult reactReadTrackName(String trackName, User user) {
-    Track newTrack = new Track(0, trackName, "");
-
-    List<Track> tracks = user.getTracks(playlist);
-
-    if (Playlist.contains(tracks, newTrack)) {
-      var message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
-          newTrack.name(), playlist.name());
+    if (!Track.hasTrack(trackName)) {
+      var message = "Трека %s нет в базе, введите другой".formatted(trackName);
 
       return CommandResult.notChangeCommand(this, message);
     }
 
-    user.addTrack(playlist, newTrack);
+    List<Track> tracks = user.getTracks(playlist.name());
+    var trackNames = tracks.stream().map(Track::name)
+        .collect(Collectors.toSet());
 
-    var message = "Трек успешно добавлен %s в плейлист %s".formatted(
-        newTrack.name(), playlist.name());
+    if (trackNames.contains(trackName)) {
+      var message = "Трек уже добавлен %s в плейлист %s, введите другой".formatted(
+          trackName, playlist.name());
+
+      return CommandResult.notChangeCommand(this, message);
+    }
+
+    user.addTrack(playlist.name(), trackName);
+
+    var message = "Трек успешно добавлен %s в плейлист %s".formatted(trackName,
+        playlist.name());
 
     return CommandResult.returnToEmptyState(message);
   }
