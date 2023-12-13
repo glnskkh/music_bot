@@ -1,83 +1,75 @@
 package org.musicbotcom.storage;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.musicbotcom.DatabaseService;
 
 public record Track(long id, String name, String path) {
-  public static List<Track> getAllTracks(Playlist playlist)
-      throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        SELECT
+
+  public static boolean hasTrack(String trackName) {
+    final String queryTrackName = """
+        select
+        	count(*)
+        from
+        	tracks
+        where
+        	tracks.name like ?;
+        """;
+
+    try (var statement = DatabaseService.prepareStatement(queryTrackName)) {
+      statement.setString(1, "%" + trackName + "%");
+
+      var results = statement.executeQuery();
+      results.beforeFirst();
+
+      int count = results.getInt("count");
+
+      return count > 0;
+
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot check %s availability".formatted(trackName));
+    }
+  }
+
+  public static List<Track> fromPlaylist(long chatId, String playlistName) {
+    final String queryTracksByPlaylist = """
+        select
           tracks.track_id,
           tracks.name,
           tracks.path
-        FROM
+        from
           tracks
-        RIGHT JOIN inclusion ON inclusion.track_id = tracks.track_id
-        WHERE
-          playlist_id = ?;
-        """);
-    statement.setLong(1, playlist.id());
+          right join inclusion on inclusion.track_id = tracks.track_id
+          right join playlists on playlists.playlist_id = inclusion.playlist_id
+        where
+          playlists.chat_id = ? and
+          playlists.name = ?;
+        """;
 
-    ResultSet results = statement.executeQuery();
-    List<Track> tracks = new ArrayList<>();
+    try (var statement = DatabaseService.prepareStatement(
+        queryTracksByPlaylist)) {
+      statement.setLong(1, chatId);
+      statement.setString(2, "%" + playlistName + "%");
 
-    for (results.beforeFirst(); results.next(); ) {
-      long id = results.getLong(1);
-      String name = results.getString(2);
-      String path = results.getString(3);
+      var results = statement.executeQuery();
 
-      tracks.add(new Track(id, name, path));
-    }
+      List<Track> result = new ArrayList<>();
 
-    statement.close();
+      for (results.beforeFirst(); results.next(); ) {
+        long id = results.getLong("track_id");
+        String name = results.getString("name");
+        String path = results.getString("path");
 
-    return tracks;
-  }
-
-  public static String listAllTracks(User user) throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        SELECT
-          tracks.name,
-          playlists.name
-        FROM
-          tracks
-          RIGHT JOIN inclusion ON inclusion.track_id = tracks.track_id
-          RIGHT JOIN playlists ON playlists.playlist_id = inclusion.playlist_id
-        WHERE
-          chat_id = ?
-        ORDER BY
-        	playlists.name ASC;
-        """);
-    statement.setLong(1, user.getChatId());
-
-    ResultSet results = statement.executeQuery();
-
-    StringBuilder stringBuilder = new StringBuilder();
-
-    String lastPlaylist = null;
-
-    for (results.beforeFirst(); results.next(); ) {
-      String trackName = results.getString(1);
-      String playlistName = results.getString(2);
-
-      if (!playlistName.equals(lastPlaylist)) {
-        stringBuilder.append(playlistName);
-        stringBuilder.append(':');
-        stringBuilder.append('\n');
-
-        lastPlaylist = playlistName;
+        result.add(new Track(id, name, path));
       }
 
-      stringBuilder.append(' ');
-      stringBuilder.append(trackName);
-      stringBuilder.append('\n');
-    }
+      return result;
 
-    return stringBuilder.toString();
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot check %s availability".formatted(playlistName));
+    }
   }
 }

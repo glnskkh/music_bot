@@ -33,80 +33,15 @@ public class User {
     return commandResult.message();
   }
 
-  public List<Playlist> getAllPlaylists(String playlistName) {
-    try {
-      return Playlist.getAllPlaylists(this);
-    } catch (SQLException e) {
-      System.err.printf("Cannot get all playlists for user %d", chatId);
-
-      return new ArrayList<>();
-    }
+  public boolean hasPlaylist(String playlistName) {
+    return Playlist.hasPlaylist(getChatId(), playlistName);
   }
 
-  public void addPlaylist(String playlistName) {
-    try {
-      Playlist.addPlaylist(this, playlistName);
-    } catch (SQLException e) {
-      System.err.printf("Cannot add playlist named %s for user %d%n",
-          playlistName, chatId);
-    }
+  public Playlist getPlaylist(String playlistName) {
+    return Playlist.getPlaylist(getChatId(), playlistName);
   }
 
-  public Optional<Playlist> getPlaylist(String playlistName) {
-    try {
-      return Playlist.getPlaylist(this, playlistName);
-    } catch (SQLException e) {
-      System.err.printf("Cannot get playlist %s for user %d", playlistName,
-          chatId);
-      return Optional.empty();
-    }
-  }
-
-  public String showPlaylists() {
-    try {
-      return Playlist.listAllPlaylists(this);
-    } catch (SQLException e) {
-      System.err.printf("Cannot show playlists for user %d%n", chatId);
-      return "";
-    }
-  }
-
-  public void removePlaylist(Playlist playlist) {
-    try {
-      Playlist.removePlaylist(playlist);
-    } catch (SQLException e) {
-      System.err.printf("Cannot remove playlist %d for user %d%n",
-          playlist.id(), chatId);
-    }
-  }
-
-  public String showPlaylist(Playlist playlist) {
-    try {
-      return Track.getAllTracks(playlist).stream().map(Track::name)
-          .collect(Collectors.joining("\n"));
-    } catch (SQLException e) {
-      System.err.printf("Cannot show playlist %d for user %d", playlist.id(),
-          chatId);
-      return "";
-    }
-  }
-
-  public List<Track> getTracks(Playlist playlist) {
-    try {
-      return Track.getAllTracks(playlist);
-    } catch (SQLException e) {
-      System.err.printf("Cannot get tracks from playlist %d for user %d",
-          playlist.id(), chatId);
-      return new ArrayList<>();
-    }
-  }
-
-  public void addTrack(Playlist playlist, Track track) {
-    try {
-      Playlist.addTrack(playlist, track);
-    } catch (SQLException e) {
-      System.err.printf("Cannot add track %s in playlist %d for user %d",
-          track.name(), playlist.id(), chatId);
-    }
+  public List<Track> getPlaylistContent(Playlist playlist) {
+    return Track.fromPlaylist(getChatId(), playlist.name());
   }
 }

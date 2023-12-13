@@ -1,4 +1,3 @@
-/*
 package org.musicbotcom.commands;
 
 import static org.junit.Assert.assertFalse;
@@ -61,4 +60,3 @@ public class TestAddTrack extends TestCommands {
     assertFalse(wasLastActionSuccessful());
   }
 }
- */

@@ -1,157 +1,112 @@
 package org.musicbotcom.storage;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.musicbotcom.DatabaseService;
 
 public record Playlist(long id, String name) {
 
-  public static boolean contains(List<Track> tracks, Track track) {
-    return tracks.stream()
-        .anyMatch(track1 -> track1.name().equals(track.name()));
-  }
+  public static boolean hasPlaylist(long chatId, String playlistName) {
+    String queryPlaylistName = """
+        select
+        	count(*)
+        from
+        	playlists
+        where
+        	playlists.chat_id = ? and
+        	playlists.name like ?;
+        """;
 
-  private static List<Playlist> collectPlaylists(ResultSet results)
-      throws SQLException {
-    List<Playlist> playlists = new ArrayList<>();
+    try (var statement = DatabaseService.prepareStatement(queryPlaylistName)) {
+      statement.setLong(1, chatId);
+      statement.setString(2, "%" + playlistName + "%");
 
-    for (results.beforeFirst(); results.next(); ) {
-      long id = results.getLong(1);
-      String name = results.getString(2);
+      var results = statement.executeQuery();
+      results.beforeFirst();
 
-      playlists.add(new Playlist(id, name));
+      int count = results.getInt("count");
+
+      return count > 0;
+
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot check %s availability\n".formatted(playlistName));
     }
-
-    return playlists;
   }
 
-  public static List<Playlist> getAllPlaylists(User user) throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        SELECT
-          playlist_id,
-          name
-        FROM
-          playlists
-        WHERE
-          chat_id = ?;
-        """);
-    statement.setLong(1, user.getChatId());
+  public static Playlist getPlaylist(long chatId, String playlistName) {
+    var queryPlaylistInfo = """
+        select
+        	playlists.playlist_id,
+          playlists.name
+        from
+        	playlists
+        where
+        	playlists.chat_id = ? and
+        	playlists.name like ?;
+        """;
 
-    ResultSet results = statement.executeQuery();
-    List<Playlist> playlists = collectPlaylists(results);
+    try (var statement = DatabaseService.prepareStatement(queryPlaylistInfo)) {
+      statement.setLong(1, chatId);
+      statement.setString(2, "%" + playlistName + "%");
 
-    statement.close();
+      var results = statement.executeQuery();
+      results.beforeFirst();
 
-    return playlists;
+      long id = results.getLong("playlist_id");
+      String name = results.getString("name");
+
+      return new Playlist(id, name);
+
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot get playlist %s\n".formatted(playlistName));
+    }
   }
 
-  public static void removePlaylist(Playlist playlist) throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        DELETE FROM
+  public static void addPlaylist(long chatId, String playlistName) {
+    var queryAddPlaylist = """
+        insert into
+        	playlists (chat_id, name)
+        values
+        	(?, ?);
+        """;
+
+    try (var statement = DatabaseService.prepareStatement(queryAddPlaylist)) {
+      statement.setLong(1, chatId);
+      statement.setString(2, playlistName);
+
+      statement.executeQuery();
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot add playlist %s".formatted(playlistName));
+    }
+  }
+
+  public static void deletePlaylist(long playlistId) {
+    var queryDeletePlaylist = """
+        delete from
           inclusion
-        WHERE
+        where
           inclusion.playlist_id = ?;
                 
-        DELETE FROM
+        delete from
           playlists
-        WHERE
+        where
           playlists.playlist_id = ?;
-        """);
-    statement.setLong(1, playlist.id());
-    statement.setLong(2, playlist.id());
+        """;
 
-    statement.executeQuery();
+    try (var statement = DatabaseService.prepareStatement(
+        queryDeletePlaylist)) {
+      statement.setLong(1, playlistId);
+      statement.setLong(2, playlistId);
 
-    statement.close();
-  }
-
-  public static void addPlaylist(User user, String playlistName) throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        INSERT INTO
-          playlists (chat_id, name)
-        VALUES
-          (?, ?);
-        """);
-    statement.setLong(1, user.getChatId());
-    statement.setString(2, playlistName);
-
-    statement.executeQuery();
-
-    statement.close();
-  }
-
-  public static String listAllPlaylists(User user) throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        SELECT
-          playlists.name
-        FROM
-          playlists
-        WHERE
-          playlists.chat_id = ?;
-        """);
-    statement.setLong(1, user.getChatId());
-
-    ResultSet results = statement.executeQuery();
-
-    StringBuilder stringBuilder = new StringBuilder();
-
-    for (results.beforeFirst(); results.next(); ) {
-      String playlistName = results.getString("name");
-
-      stringBuilder.append(playlistName);
-      stringBuilder.append('\n');
+      statement.executeQuery();
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Cannot add playlist %d".formatted(playlistId));
     }
 
-    return stringBuilder.toString();
   }
 
-  public static void addTrack(Playlist playlist, Track track) throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        INSERT INTO
-          inclusion (playlist_id, track_id)
-        VALUES
-          (?, ?);
-        """);
-    statement.setLong(1, playlist.id());
-    statement.setLong(2, track.id());
-
-    statement.executeQuery();
-
-    statement.close();
-  }
-
-  public static Optional<Playlist> getPlaylist(User user, String playlistName) throws SQLException {
-    PreparedStatement statement = DatabaseService.prepareStatement("""
-        SELECT
-          playlists.playlist_id,
-          playlists.name
-        FROM
-          playlists
-        WHERE
-        	playlists.name = ? AND
-          playlists.chat_id = ?;
-        """);
-    statement.setString(1, playlistName);
-    statement.setLong(2, user.getChatId());
-
-    ResultSet results = statement.executeQuery();
-    results.beforeFirst();
-
-    if (!results.next()) {
-      statement.close();
-
-      return Optional.empty();
-    }
-
-    long playlistId = results.getLong("playlist_id");
-    String name = results.getString("name");
-
-    statement.close();
-
-    return Optional.of(new Playlist(playlistId, name));
-  }
+  public static void addTrack(long chatId, String playlistName, String trackName) {}
 }
