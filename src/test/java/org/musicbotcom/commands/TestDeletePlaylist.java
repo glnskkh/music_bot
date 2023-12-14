@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TestDeletePlaylist extends TestCommands {
 
   boolean wasSuccessfullyDeleted() {
-    return wasLastActionSuccessful();
+    return wasLastActionSuccessful() && !getDefaultUser().hasPlaylist("123");
   }
 
   @Override

@@ -89,12 +89,13 @@ class TestCommands {
 
   @After
   public void clearDataBase() throws SQLException {
-    var statement = DatabaseService.prepareStatement("""
-        delete from playlists;
-        delete from users;
-        delete from inclusion;
-        """);
+    var statementDeleteFromPlaylist = DatabaseService.prepareStatement("delete from playlists;");
+    var statementDeleteFromInclusion = DatabaseService.prepareStatement("delete from inclusion;");
 
-    statement.execute();
+    statementDeleteFromPlaylist.execute();
+    statementDeleteFromInclusion.execute();
+
+    statementDeleteFromPlaylist.close();
+    statementDeleteFromInclusion.close();
   }
 }
