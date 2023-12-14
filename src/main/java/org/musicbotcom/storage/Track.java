@@ -21,9 +21,8 @@ public record Track(long id, String name, String path) {
       statement.setString(1, "%" + trackName + "%");
 
       var results = statement.executeQuery();
-      results.first();
 
-      int count = results.getInt("count");
+      int count = results.getInt(1);
 
       return count > 0;
 
@@ -57,7 +56,7 @@ public record Track(long id, String name, String path) {
 
       List<Track> result = new ArrayList<>();
 
-      for (results.beforeFirst(); results.next(); ) {
+      while (results.next()) {
         long id = results.getLong("track_id");
         String name = results.getString("name");
         String path = results.getString("path");
@@ -93,7 +92,6 @@ public record Track(long id, String name, String path) {
       statement.setString(1, "%" + trackName + "%");
 
       var results = statement.executeQuery();
-      results.first();
 
       long id = results.getLong("track_id");
       String name = results.getString("name");

@@ -1,10 +1,15 @@
 package org.musicbotcom.commands;
 
+import java.sql.SQLException;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.musicbotcom.DatabaseService;
 import org.musicbotcom.MusicBot;
 import org.musicbotcom.storage.User;
+import org.musicbotcom.tokens.DatabaseProvider;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -18,6 +23,30 @@ class TestCommands {
   private final long DEFAULT_USER_CHAT_ID = 1;
   protected String lastAnswer;
   private MusicBot bot;
+
+  private static void initDatabaseService() {
+    DatabaseService.start(new DatabaseProvider() {
+      @Override
+      public String getConnectionString() {
+        return "jdbc:sqlite:test.db";
+      }
+
+      @Override
+      public String getUsername() {
+        return null;
+      }
+
+      @Override
+      public String getPassword() {
+        return null;
+      }
+    });
+  }
+
+  @BeforeClass
+  public static void setUpServices() {
+    initDatabaseService();
+  }
 
   User getDefaultUser() {
     return bot.getUser(DEFAULT_USER_CHAT_ID);
@@ -56,5 +85,16 @@ class TestCommands {
 
     Mockito.doCallRealMethod().when(bot)
         .onUpdateReceived(ArgumentMatchers.any());
+  }
+
+  @After
+  public void clearDataBase() throws SQLException {
+    var statement = DatabaseService.prepareStatement("""
+        delete from playlists;
+        delete from users;
+        delete from inclusion;
+        """);
+
+    statement.execute();
   }
 }

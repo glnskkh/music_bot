@@ -65,4 +65,8 @@ public class User {
   public List<Playlist> getPlaylists() {
     return Playlist.getPlaylists(getChatId());
   }
+
+  public boolean hasTrackInPlaylist(String trackName, String playlistName) {
+    return Playlist.hasTrack(getChatId(), playlistName, trackName);
+  }
 }

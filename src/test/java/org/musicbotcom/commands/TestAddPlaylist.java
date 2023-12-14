@@ -11,8 +11,7 @@ import org.junit.runners.JUnit4;
 public class TestAddPlaylist extends TestCommands {
 
   boolean wasCreatedPlaylist(String name) {
-    return wasLastActionSuccessful() && getDefaultUser().getPlaylist(name)
-        .isPresent();
+    return getDefaultUser().hasPlaylist(name);
   }
 
   @Test

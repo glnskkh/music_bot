@@ -3,9 +3,11 @@ package org.musicbotcom.storage;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.musicbotcom.DatabaseService;
 
-public record Playlist(long id, String name) {
+public record Playlist(int id, String name) {
 
   public static boolean hasPlaylist(long chatId, String playlistName) {
     String queryPlaylistName = """
@@ -23,9 +25,8 @@ public record Playlist(long id, String name) {
       statement.setString(2, playlistName);
 
       var results = statement.executeQuery();
-      results.first();
 
-      int count = results.getInt("count");
+      int count = results.getInt(1);
 
       return count > 0;
 
@@ -52,9 +53,8 @@ public record Playlist(long id, String name) {
       statement.setString(2, playlistName);
 
       var results = statement.executeQuery();
-      results.first();
 
-      long id = results.getLong("playlist_id");
+      int id = results.getInt("playlist_id");
       String name = results.getString("name");
 
       return new Playlist(id, name);
@@ -84,25 +84,29 @@ public record Playlist(long id, String name) {
     }
   }
 
-  public static void deletePlaylist(long playlistId) {
+  public static void deletePlaylist(int playlistId) {
     var queryDeletePlaylist = """
-        delete from
-          inclusion
-        where
-          inclusion.playlist_id = ?;
-                
         delete from
           playlists
         where
           playlists.playlist_id = ?;
         """;
 
-    try (var statement = DatabaseService.prepareStatement(
-        queryDeletePlaylist)) {
-      statement.setLong(1, playlistId);
-      statement.setLong(2, playlistId);
+    var queryDeletePlaylistConnections = """
+        delete from
+          inclusion
+        where
+          inclusion.playlist_id = ?;
+        """;
 
-      statement.execute();
+    try (var statementDeletePlaylist = DatabaseService.prepareStatement(
+        queryDeletePlaylist); var statementDeletePlaylistConnections = DatabaseService.prepareStatement(
+        queryDeletePlaylistConnections)) {
+      statementDeletePlaylist.setInt(1, playlistId);
+      statementDeletePlaylistConnections.setInt(1, playlistId);
+
+      statementDeletePlaylist.execute();
+      statementDeletePlaylistConnections.execute();
     } catch (SQLException e) {
       throw new RuntimeException(
           "Cannot delete playlist %d".formatted(playlistId));
@@ -152,8 +156,8 @@ public record Playlist(long id, String name) {
 
       List<Playlist> result = new ArrayList<>();
 
-      for (results.beforeFirst(); results.next(); ) {
-        long id = results.getLong("playlist_id");
+      while (results.next()) {
+        int id = results.getInt("playlist_id");
         String name = results.getString("name");
 
         result.add(new Playlist(id, name));
@@ -164,5 +168,14 @@ public record Playlist(long id, String name) {
       throw new RuntimeException(
           "Cannot get info on playlists for user %d".formatted(chatId));
     }
+  }
+
+  public static boolean hasTrack(long chatId, String playlistName,
+      String trackName) {
+    List<Track> tracks = Track.fromPlaylist(chatId, playlistName);
+    Set<String> trackNames = tracks.stream().map(Track::name)
+        .collect(Collectors.toSet());
+
+    return trackNames.contains(trackName);
   }
 }

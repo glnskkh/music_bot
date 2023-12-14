@@ -6,15 +6,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.musicbotcom.storage.Track;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @RunWith(JUnit4.class)
 public class TestAddTrack extends TestCommands {
 
-  boolean wasTrackAdditionSuccessful(String name) {
-    return wasLastActionSuccessful() && getDefaultUser().getPlaylist("123")
-        .get().hasTrack(new Track(name, ""));
+  boolean wasTrackAdditionSuccessful(String trackName) {
+    return wasLastActionSuccessful() && getDefaultUser().hasTrackInPlaylist(
+        trackName, "123");
   }
 
   @Override
@@ -29,9 +28,9 @@ public class TestAddTrack extends TestCommands {
   public void testAddTrack() {
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage("123");
-    sendDefaultUserMessage("Dancing Queen");
+    sendDefaultUserMessage("Dancing");
 
-    assertTrue(wasTrackAdditionSuccessful("Dancing Queen"));
+    assertTrue(wasTrackAdditionSuccessful("Dancing"));
   }
 
   @Test
@@ -42,20 +41,20 @@ public class TestAddTrack extends TestCommands {
     assertFalse(wasLastActionSuccessful());
 
     sendDefaultUserMessage("123");
-    sendDefaultUserMessage("Dancing Queen");
+    sendDefaultUserMessage("Dancing");
 
-    assertTrue(wasTrackAdditionSuccessful("Dancing Queen"));
+    assertTrue(wasTrackAdditionSuccessful("Dancing"));
   }
 
   @Test
   public void testAddTrackExists() {
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage("123");
-    sendDefaultUserMessage("Money");
+    sendDefaultUserMessage("Forever");
 
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage("123");
-    sendDefaultUserMessage("Money");
+    sendDefaultUserMessage("Forever");
 
     assertFalse(wasLastActionSuccessful());
   }

@@ -15,8 +15,8 @@
 
     <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
     <dependency>
-      <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
+      <groupId>org.postgresql</groupId>
       <version>42.7.1</version>
     </dependency>
 
@@ -35,6 +35,15 @@
       <scope>test</scope>
       <version>5.7.0</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+    <dependency>
+      <artifactId>sqlite-jdbc</artifactId>
+      <groupId>org.xerial</groupId>
+      <scope>test</scope>
+      <version>3.44.1.0</version>
+    </dependency>
+
 
   </dependencies>
   <groupId>org.musicbotcom</groupId>
