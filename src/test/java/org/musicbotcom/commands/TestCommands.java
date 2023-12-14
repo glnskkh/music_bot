@@ -1,6 +1,7 @@
 package org.musicbotcom.commands;
 
 import java.sql.SQLException;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -18,8 +19,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
 class TestCommands {
-
-
   private final long DEFAULT_USER_CHAT_ID = 1;
   protected String lastAnswer;
   private MusicBot bot;
@@ -32,13 +31,13 @@ class TestCommands {
       }
 
       @Override
-      public String getUsername() {
-        return null;
+      public Optional<String> getUsername() {
+        return Optional.empty();
       }
 
       @Override
-      public String getPassword() {
-        return null;
+      public Optional<String> getPassword() {
+        return Optional.empty();
       }
     });
   }

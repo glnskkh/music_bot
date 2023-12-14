@@ -1,5 +1,7 @@
 package org.musicbotcom.tokens;
 
+import java.util.Optional;
+
 public class EnvDatabaseProvider implements DatabaseProvider {
 
   private boolean isValidAddress(String address) {
@@ -23,7 +25,7 @@ public class EnvDatabaseProvider implements DatabaseProvider {
   }
 
   @Override
-  public String getUsername() {
+  public Optional<String> getUsername() {
     final String username = System.getenv("DB_USERNAME");
 
     if (username == null) {
@@ -31,11 +33,11 @@ public class EnvDatabaseProvider implements DatabaseProvider {
           "Cannot get database username from environment");
     }
 
-    return username;
+    return Optional.of(username);
   }
 
   @Override
-  public String getPassword() {
+  public Optional<String> getPassword() {
     final String password = System.getenv("DB_PASSWORD");
 
     if (password == null) {
@@ -43,6 +45,6 @@ public class EnvDatabaseProvider implements DatabaseProvider {
           "Cannot get database password from environment");
     }
 
-    return password;
+    return Optional.of(password);
   }
 }

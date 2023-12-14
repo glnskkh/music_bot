@@ -21,6 +21,7 @@ public record Track(long id, String name, String path) {
       statement.setString(1, "%" + trackName + "%");
 
       var results = statement.executeQuery();
+      results.next();
 
       int count = results.getInt(1);
 
@@ -92,6 +93,7 @@ public record Track(long id, String name, String path) {
       statement.setString(1, "%" + trackName + "%");
 
       var results = statement.executeQuery();
+      results.next();
 
       long id = results.getLong("track_id");
       String name = results.getString("name");

@@ -1,5 +1,6 @@
 package org.musicbotcom.storage;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public record Playlist(int id, String name) {
       statement.setString(2, playlistName);
 
       var results = statement.executeQuery();
+      results.next();
 
       int count = results.getInt(1);
 
@@ -53,6 +55,7 @@ public record Playlist(int id, String name) {
       statement.setString(2, playlistName);
 
       var results = statement.executeQuery();
+      results.next();
 
       int id = results.getInt("playlist_id");
       String name = results.getString("name");

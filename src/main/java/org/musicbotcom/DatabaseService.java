@@ -15,11 +15,11 @@ public class DatabaseService {
   public static void start(DatabaseProvider credentials) {
     String url = credentials.getConnectionString();
 
-    if (credentials.getUsername() != null
-        && credentials.getPassword() != null) {
+    if (credentials.getUsername().isPresent()
+        && credentials.getPassword().isPresent()) {
       Properties authorization = new Properties();
-      authorization.put("user", credentials.getUsername());
-      authorization.put("password", credentials.getPassword());
+      authorization.put("user", credentials.getUsername().get());
+      authorization.put("password", credentials.getPassword().get());
 
       try {
         connection = DriverManager.getConnection(url, authorization);
@@ -33,13 +33,11 @@ public class DatabaseService {
         throw new RuntimeException("Cannot connect to database");
       }
     }
-
   }
 
   public static PreparedStatement prepareStatement(String query)
       throws SQLException {
-    return connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY,
-        ResultSet.CONCUR_READ_ONLY);
+    return connection.prepareStatement(query);
   }
 
   public static void stop() {

@@ -1,10 +1,12 @@
 package org.musicbotcom.tokens;
 
+import java.util.Optional;
+
 public interface DatabaseProvider {
 
   String getConnectionString();
 
-  String getUsername();
+  Optional<String> getUsername();
 
-  String getPassword();
+  Optional<String> getPassword();
 }
