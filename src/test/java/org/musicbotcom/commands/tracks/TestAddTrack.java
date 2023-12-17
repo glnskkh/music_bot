@@ -1,4 +1,4 @@
-package org.musicbotcom.commands;
+package org.musicbotcom.commands.tracks;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -6,14 +6,19 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.musicbotcom.commands.CommandTest;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @RunWith(JUnit4.class)
-public class TestAddTrack extends TestCommands {
+public class TestAddTrack extends CommandTest {
+
+  private final String testPlaylistName = "123";
+  private final String nonExsistingPlaylistName = "321";
+
 
   boolean wasTrackAdditionSuccessful(String trackName) {
     return wasLastActionSuccessful() && getDefaultUser().hasTrackInPlaylist(
-        trackName, "123");
+        trackName, testPlaylistName);
   }
 
   @Override
@@ -21,13 +26,13 @@ public class TestAddTrack extends TestCommands {
     super.setUpBot();
 
     sendDefaultUserMessage("/addPlaylist");
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
   }
 
   @Test
   public void testAddTrack() {
     sendDefaultUserMessage("/addTrack");
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
     sendDefaultUserMessage("Dancing");
 
     assertTrue(wasTrackAdditionSuccessful("Dancing"));
@@ -36,11 +41,11 @@ public class TestAddTrack extends TestCommands {
   @Test
   public void testAddTrackWrongPlaylist() {
     sendDefaultUserMessage("/addTrack");
-    sendDefaultUserMessage("321");
+    sendDefaultUserMessage(nonExsistingPlaylistName);
 
     assertFalse(wasLastActionSuccessful());
 
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
     sendDefaultUserMessage("Dancing");
 
     assertTrue(wasTrackAdditionSuccessful("Dancing"));
@@ -49,11 +54,11 @@ public class TestAddTrack extends TestCommands {
   @Test
   public void testAddTrackExists() {
     sendDefaultUserMessage("/addTrack");
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
     sendDefaultUserMessage("Forever");
 
     sendDefaultUserMessage("/addTrack");
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
     sendDefaultUserMessage("Forever");
 
     assertFalse(wasLastActionSuccessful());

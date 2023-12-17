@@ -1,4 +1,4 @@
-package org.musicbotcom.commands;
+package org.musicbotcom.commands.playlist;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -6,9 +6,12 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.musicbotcom.commands.CommandTest;
 
 @RunWith(JUnit4.class)
-public class TestAddPlaylist extends TestCommands {
+public class AddPlaylistTest extends CommandTest {
+
+  private final String testPlaylistName = "123";
 
   boolean wasCreatedPlaylist(String name) {
     return getDefaultUser().hasPlaylist(name);
@@ -17,22 +20,23 @@ public class TestAddPlaylist extends TestCommands {
   @Test
   public void testAddPlaylist() {
     sendDefaultUserMessage("/addPlaylist");
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
 
-    assertTrue(wasCreatedPlaylist("123"));
+    assertTrue(wasCreatedPlaylist(testPlaylistName));
   }
 
   @Test
   public void testAddPlaylistExists() {
     sendDefaultUserMessage("/addPlaylist");
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
     sendDefaultUserMessage("/addPlaylist");
-    sendDefaultUserMessage("123");
+    sendDefaultUserMessage(testPlaylistName);
 
     assertFalse(wasLastActionSuccessful());
 
-    sendDefaultUserMessage("321");
+    final String otherPlaylistName = "321";
+    sendDefaultUserMessage(otherPlaylistName);
 
-    assertTrue(wasCreatedPlaylist("321"));
+    assertTrue(wasCreatedPlaylist(otherPlaylistName));
   }
 }
