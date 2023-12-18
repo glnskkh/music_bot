@@ -13,9 +13,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class ShowPlaylistTest extends CommandTest {
 
   private final String testPlaylistName = "123";
+  private final String otherPlaylistName = "312";
 
   boolean wasListedToUser(String trackName) {
     return getLastAnswer().contains(trackName);
+  }
+
+  boolean showedEmptyPlaylist() {
+    return getLastAnswer().contains("Нет треков");
   }
 
   @Override
@@ -45,5 +50,26 @@ public class ShowPlaylistTest extends CommandTest {
 
     assertTrue(wasListedToUser(testTrackNames[0]));
     assertFalse(wasListedToUser(testTrackNames[1]));
+  }
+
+  @Test
+  public void testNonExistingPlaylist() {
+    sendDefaultUserMessage("/showPlaylist");
+    sendDefaultUserMessage(otherPlaylistName);
+
+    assertFalse(wasLastActionSuccessful());
+  }
+
+  @Test
+  public void testEmptyPlaylist() {
+    sendDefaultUserMessage("/addPlaylist");
+    sendDefaultUserMessage(otherPlaylistName);
+
+    assertTrue(wasLastActionSuccessful());
+
+    sendDefaultUserMessage("/showPlaylist");
+    sendDefaultUserMessage(otherPlaylistName);
+
+    assertTrue(showedEmptyPlaylist());
   }
 }

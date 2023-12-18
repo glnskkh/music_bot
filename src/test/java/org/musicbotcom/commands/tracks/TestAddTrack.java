@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class TestAddTrack extends CommandTest {
 
   private final String testPlaylistName = "123";
-  private final String nonExsistingPlaylistName = "321";
 
 
   boolean wasTrackAdditionSuccessful(String trackName) {
@@ -33,33 +32,46 @@ public class TestAddTrack extends CommandTest {
   public void testAddTrack() {
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage(testPlaylistName);
-    sendDefaultUserMessage("Dancing");
+    sendDefaultUserMessage(testTrackNames[0]);
 
-    assertTrue(wasTrackAdditionSuccessful("Dancing"));
+    assertTrue(wasTrackAdditionSuccessful(testTrackNames[0]));
   }
 
   @Test
   public void testAddTrackWrongPlaylist() {
+    String nonExistingPlaylistName = "321";
+
     sendDefaultUserMessage("/addTrack");
-    sendDefaultUserMessage(nonExsistingPlaylistName);
+    sendDefaultUserMessage(nonExistingPlaylistName);
 
     assertFalse(wasLastActionSuccessful());
 
     sendDefaultUserMessage(testPlaylistName);
-    sendDefaultUserMessage("Dancing");
+    sendDefaultUserMessage(testTrackNames[0]);
 
-    assertTrue(wasTrackAdditionSuccessful("Dancing"));
+    assertTrue(wasTrackAdditionSuccessful(testTrackNames[0]));
   }
 
   @Test
   public void testAddTrackExists() {
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage(testPlaylistName);
-    sendDefaultUserMessage("Forever");
+    sendDefaultUserMessage(testTrackNames[1]);
 
     sendDefaultUserMessage("/addTrack");
     sendDefaultUserMessage(testPlaylistName);
-    sendDefaultUserMessage("Forever");
+    sendDefaultUserMessage(testTrackNames[1]);
+
+    assertFalse(wasLastActionSuccessful());
+  }
+
+  @Test
+  public void testAddNonExistingTrack() {
+    final String nonExistingTrack = "Fugue";
+
+    sendDefaultUserMessage("/addTrack");
+    sendDefaultUserMessage(testPlaylistName);
+    sendDefaultUserMessage(nonExistingTrack);
 
     assertFalse(wasLastActionSuccessful());
   }
